@@ -13,8 +13,14 @@ import {
   StatusBar,
   SafeAreaView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import SwipeStack from '@/components/SwipeStack';
+import {
+  ImageStackIcon,
+  CheckmarkIcon,
+  ScanIcon,
+  SwipeLeftIcon,
+  SwipeRightIcon,
+} from '@/components/icons';
 import { ImageHash, findDuplicates, DuplicateGroup } from '@/utils/duplicateDetection';
 import { loadImages, requestPermissions, deleteImage } from '@/utils/imageLoader';
 
@@ -110,12 +116,13 @@ export default function HomeScreen() {
       <View style={styles.content}>
         {state === 'initial' && (
           <View style={styles.initial}>
-            <Ionicons name="images-outline" size={80} color="#ffffff" />
+            <ImageStackIcon size={80} color="#ffffff" />
             <Text style={styles.title}>Find & Delete{'\n'}Duplicate Photos</Text>
             <Text style={styles.subtitle}>
               Swipe left to delete, right to keep
             </Text>
             <TouchableOpacity style={styles.button} onPress={startScan}>
+              <ScanIcon size={20} color="#000000" />
               <Text style={styles.buttonText}>Start Scanning</Text>
             </TouchableOpacity>
           </View>
@@ -150,11 +157,11 @@ export default function HomeScreen() {
 
             <View style={styles.instructions}>
               <View style={styles.instruction}>
-                <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                <SwipeLeftIcon size={32} color="#dc2626" />
                 <Text style={styles.instructionText}>Delete</Text>
               </View>
               <View style={styles.instruction}>
-                <Ionicons name="arrow-forward" size={24} color="#22c55e" />
+                <SwipeRightIcon size={32} color="#22c55e" />
                 <Text style={styles.instructionText}>Keep</Text>
               </View>
             </View>
@@ -163,12 +170,13 @@ export default function HomeScreen() {
 
         {state === 'complete' && (
           <View style={styles.complete}>
-            <Ionicons name="checkmark-circle-outline" size={80} color="#22c55e" />
+            <CheckmarkIcon size={80} color="#22c55e" />
             <Text style={styles.title}>All Done!</Text>
             <Text style={styles.completeStats}>
               Deleted {deletedCount} • Kept {keptCount}
             </Text>
             <TouchableOpacity style={styles.button} onPress={resetApp}>
+              <ScanIcon size={20} color="#000000" />
               <Text style={styles.buttonText}>Scan Again</Text>
             </TouchableOpacity>
           </View>
@@ -254,6 +262,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   buttonText: {
     fontSize: 16,

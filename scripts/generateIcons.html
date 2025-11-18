@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwipeDelete Icon Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .icon-card {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #2a2a2a;
+        }
+        .icon-card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .icon-wrapper {
+            background: #000;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        .info {
+            font-size: 12px;
+            color: #808080;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SwipeDelete Assets Generator</h1>
+
+        <div class="icons-grid">
+            <div class="icon-card">
+                <h2>App Icon (1024×1024)</h2>
+                <div class="icon-wrapper">
+                    <canvas id="appIcon" width="1024" height="1024"></canvas>
+                </div>
+                <button onclick="downloadCanvas('appIcon', 'icon.png')">Download icon.png</button>
+                <p class="info">iOS/Android App Icon</p>
+            </div>
+
+            <div class="icon-card">
+                <h2>Adaptive Icon (1024×1024)</h2>
+                <div class="icon-wrapper">
+                    <canvas id="adaptiveIcon" width="1024" height="1024"></canvas>
+                </div>
+                <button onclick="downloadCanvas('adaptiveIcon', 'adaptive-icon.png')">Download adaptive-icon.png</button>
+                <p class="info">Android Adaptive Icon</p>
+            </div>
+
+            <div class="icon-card">
+                <h2>Splash Screen (1284×2778)</h2>
+                <div class="icon-wrapper">
+                    <canvas id="splash" width="428" height="926"></canvas>
+                </div>
+                <button onclick="downloadCanvas('splash', 'splash.png', 1284, 2778)">Download splash.png</button>
+                <p class="info">Launch Screen (scaled for preview)</p>
+            </div>
+
+            <div class="icon-card">
+                <h2>Favicon (512×512)</h2>
+                <div class="icon-wrapper">
+                    <canvas id="favicon" width="512" height="512"></canvas>
+                </div>
+                <button onclick="downloadCanvas('favicon', 'favicon.png')">Download favicon.png</button>
+                <p class="info">Web Favicon</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Design system
+        const colors = {
+            black: '#000000',
+            white: '#FFFFFF',
+            gray: '#1a1a1a',
+        };
+
+        // Draw App Icon (minimalist swipe gesture)
+        function drawAppIcon() {
+            const canvas = document.getElementById('appIcon');
+            const ctx = canvas.getContext('2d');
+            const size = 1024;
+
+            // Background
+            ctx.fillStyle = colors.black;
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw two overlapping cards with swipe motion
+            const cardWidth = size * 0.55;
+            const cardHeight = size * 0.7;
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // Back card (slightly tilted right)
+            ctx.save();
+            ctx.translate(centerX + 40, centerY);
+            ctx.rotate(8 * Math.PI / 180);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.roundRect(-cardWidth/2, -cardHeight/2, cardWidth, cardHeight, 40);
+            ctx.fill();
+            ctx.restore();
+
+            // Front card (tilted left) with arrow
+            ctx.save();
+            ctx.translate(centerX - 40, centerY);
+            ctx.rotate(-8 * Math.PI / 180);
+
+            // Card background
+            ctx.fillStyle = colors.white;
+            ctx.roundRect(-cardWidth/2, -cardHeight/2, cardWidth, cardHeight, 40);
+            ctx.fill();
+
+            // Arrow on card
+            ctx.strokeStyle = colors.black;
+            ctx.lineWidth = 24;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Left arrow
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-80, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-80, 0);
+            ctx.lineTo(-40, -40);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-80, 0);
+            ctx.lineTo(-40, 40);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Draw Adaptive Icon (foreground only)
+        function drawAdaptiveIcon() {
+            const canvas = document.getElementById('adaptiveIcon');
+            const ctx = canvas.getContext('2d');
+            const size = 1024;
+
+            // Transparent background for adaptive icon
+            ctx.clearRect(0, 0, size, size);
+
+            // Simple geometric swipe symbol
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // Two cards
+            ctx.fillStyle = '#2a2a2a';
+            ctx.roundRect(centerX - 180, centerY - 280, 400, 560, 40);
+            ctx.fill();
+
+            ctx.fillStyle = colors.white;
+            ctx.roundRect(centerX - 220, centerY - 280, 400, 560, 40);
+            ctx.fill();
+
+            // Arrow
+            ctx.strokeStyle = colors.black;
+            ctx.lineWidth = 32;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 20, centerY);
+            ctx.lineTo(centerX - 140, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 140, centerY);
+            ctx.lineTo(centerX - 80, centerY - 60);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 140, centerY);
+            ctx.lineTo(centerX - 80, centerY + 60);
+            ctx.stroke();
+        }
+
+        // Draw Splash Screen
+        function drawSplash() {
+            const canvas = document.getElementById('splash');
+            const ctx = canvas.getContext('2d');
+            const width = 428;
+            const height = 926;
+
+            // Background
+            ctx.fillStyle = colors.black;
+            ctx.fillRect(0, 0, width, height);
+
+            // Center logo
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = 0.3;
+
+            // Simple card icon
+            ctx.fillStyle = colors.white;
+            ctx.roundRect(centerX - 100 * scale, centerY - 150 * scale, 200 * scale, 300 * scale, 12 * scale);
+            ctx.fill();
+
+            // Arrow
+            ctx.strokeStyle = colors.black;
+            ctx.lineWidth = 8 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(centerX + 10 * scale, centerY);
+            ctx.lineTo(centerX - 30 * scale, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 30 * scale, centerY);
+            ctx.lineTo(centerX - 10 * scale, centerY - 20 * scale);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 30 * scale, centerY);
+            ctx.lineTo(centerX - 10 * scale, centerY + 20 * scale);
+            ctx.stroke();
+
+            // App name
+            ctx.fillStyle = colors.white;
+            ctx.font = '600 28px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.letterSpacing = '2px';
+            ctx.fillText('SWIPE DELETE', centerX, centerY + 140);
+        }
+
+        // Draw Favicon
+        function drawFavicon() {
+            const canvas = document.getElementById('favicon');
+            const ctx = canvas.getContext('2d');
+            const size = 512;
+
+            // Background
+            ctx.fillStyle = colors.black;
+            ctx.fillRect(0, 0, size, size);
+
+            // Simple minimal icon - just arrow
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            ctx.strokeStyle = colors.white;
+            ctx.lineWidth = 40;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Horizontal line
+            ctx.beginPath();
+            ctx.moveTo(centerX + 100, centerY);
+            ctx.lineTo(centerX - 100, centerY);
+            ctx.stroke();
+
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(centerX - 100, centerY);
+            ctx.lineTo(centerX - 30, centerY - 70);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 100, centerY);
+            ctx.lineTo(centerX - 30, centerY + 70);
+            ctx.stroke();
+        }
+
+        // Polyfill for roundRect
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.arcTo(x + width, y, x + width, y + radius, radius);
+                this.lineTo(x + width, y + height - radius);
+                this.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+                this.lineTo(x + radius, y + height);
+                this.arcTo(x, y + height, x, y + height - radius, radius);
+                this.lineTo(x, y + radius);
+                this.arcTo(x, y, x + radius, y, radius);
+                this.closePath();
+            };
+        }
+
+        // Download function
+        function downloadCanvas(canvasId, filename, finalWidth, finalHeight) {
+            const canvas = document.getElementById(canvasId);
+
+            // Create high-res version if needed
+            if (finalWidth && finalHeight) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = finalWidth;
+                tempCanvas.height = finalHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // Redraw at higher resolution
+                const scaleX = finalWidth / canvas.width;
+                const scaleY = finalHeight / canvas.height;
+                tempCtx.scale(scaleX, scaleY);
+                tempCtx.drawImage(canvas, 0, 0);
+
+                // Download temp canvas
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            } else {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        // Initialize all icons
+        window.onload = function() {
+            drawAppIcon();
+            drawAdaptiveIcon();
+            drawSplash();
+            drawFavicon();
+        };
+    </script>
+</body>
+</html>
