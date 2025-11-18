@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwipeDelete - Asset Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #808080;
+            margin-bottom: 48px;
+            letter-spacing: 0.5px;
+        }
+        .preview {
+            background: #0a0a0a;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 32px;
+            border: 1px solid #2a2a2a;
+        }
+        .preview canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .button {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 20px 48px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .button:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,255,255,0.2);
+        }
+        .button:disabled {
+            background: #2a2a2a;
+            color: #808080;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #22c55e;
+            letter-spacing: 0.5px;
+        }
+        .checklist {
+            text-align: left;
+            margin-top: 24px;
+            background: #0a0a0a;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #808080;
+            letter-spacing: 0.5px;
+        }
+        .checklist-item.done {
+            color: #22c55e;
+        }
+        .check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2a2a2a;
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .checklist-item.done .check {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SWIPE DELETE</h1>
+        <p class="subtitle">Asset Generator - Alle Icons mit 1 Klick</p>
+
+        <div class="preview">
+            <canvas id="preview" width="512" height="512"></canvas>
+        </div>
+
+        <button class="button" id="generateBtn" onclick="generateAll()">
+            ✨ Alle Assets Generieren
+        </button>
+
+        <div id="status" class="status" style="display:none;"></div>
+
+        <div class="checklist">
+            <div class="checklist-item" id="check-icon">
+                <div class="check"></div>
+                <span>icon.png (1024×1024)</span>
+            </div>
+            <div class="checklist-item" id="check-adaptive">
+                <div class="check"></div>
+                <span>adaptive-icon.png (1024×1024)</span>
+            </div>
+            <div class="checklist-item" id="check-splash">
+                <div class="check"></div>
+                <span>splash.png (1284×2778)</span>
+            </div>
+            <div class="checklist-item" id="check-favicon">
+                <div class="check"></div>
+                <span>favicon.png (512×512)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Polyfill roundRect
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.lineTo(x + w - r, y);
+                this.arcTo(x + w, y, x + w, y + r, r);
+                this.lineTo(x + w, y + h - r);
+                this.arcTo(x + w, y + h, x + w - r, y + h, r);
+                this.lineTo(x + r, y + h);
+                this.arcTo(x, y + h, x, y + h - r, r);
+                this.lineTo(x, y + r);
+                this.arcTo(x, y, x + r, y, r);
+                this.closePath();
+            };
+        }
+
+        // Draw preview
+        function drawPreview() {
+            const canvas = document.getElementById('preview');
+            const ctx = canvas.getContext('2d');
+            const size = 512;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const scale = 0.5;
+
+            // Back card
+            ctx.save();
+            ctx.translate(centerX + 20, centerY);
+            ctx.rotate(4 * Math.PI / 180);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.roundRect(-140 * scale, -180 * scale, 280 * scale, 360 * scale, 20 * scale);
+            ctx.fill();
+            ctx.restore();
+
+            // Front card
+            ctx.save();
+            ctx.translate(centerX - 20, centerY);
+            ctx.rotate(-4 * Math.PI / 180);
+            ctx.fillStyle = '#ffffff';
+            ctx.roundRect(-140 * scale, -180 * scale, 280 * scale, 360 * scale, 20 * scale);
+            ctx.fill();
+
+            // Arrow
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 12 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-40 * scale, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-40 * scale, 0);
+            ctx.lineTo(-20 * scale, -20 * scale);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-40 * scale, 0);
+            ctx.lineTo(-20 * scale, 20 * scale);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Generate icon.png
+        function generateIcon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            const size = 1024;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const cardW = size * 0.55;
+            const cardH = size * 0.7;
+
+            // Back card
+            ctx.save();
+            ctx.translate(centerX + 40, centerY);
+            ctx.rotate(8 * Math.PI / 180);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.roundRect(-cardW/2, -cardH/2, cardW, cardH, 40);
+            ctx.fill();
+            ctx.restore();
+
+            // Front card
+            ctx.save();
+            ctx.translate(centerX - 40, centerY);
+            ctx.rotate(-8 * Math.PI / 180);
+            ctx.fillStyle = '#ffffff';
+            ctx.roundRect(-cardW/2, -cardH/2, cardW, cardH, 40);
+            ctx.fill();
+
+            // Arrow
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 24;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-80, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-80, 0);
+            ctx.lineTo(-40, -40);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(-80, 0);
+            ctx.lineTo(-40, 40);
+            ctx.stroke();
+
+            ctx.restore();
+
+            return canvas;
+        }
+
+        // Generate adaptive-icon.png
+        function generateAdaptive() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+            const size = 1024;
+
+            ctx.clearRect(0, 0, size, size);
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            ctx.fillStyle = '#2a2a2a';
+            ctx.roundRect(centerX - 180, centerY - 280, 400, 560, 40);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.roundRect(centerX - 220, centerY - 280, 400, 560, 40);
+            ctx.fill();
+
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 32;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 20, centerY);
+            ctx.lineTo(centerX - 140, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 140, centerY);
+            ctx.lineTo(centerX - 80, centerY - 60);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 140, centerY);
+            ctx.lineTo(centerX - 80, centerY + 60);
+            ctx.stroke();
+
+            return canvas;
+        }
+
+        // Generate splash.png
+        function generateSplash() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1284;
+            canvas.height = 2778;
+            const ctx = canvas.getContext('2d');
+            const width = 1284;
+            const height = 2778;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Card
+            ctx.fillStyle = '#ffffff';
+            ctx.roundRect(centerX - 200, centerY - 300, 400, 600, 40);
+            ctx.fill();
+
+            // Arrow
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 24;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(centerX + 20, centerY);
+            ctx.lineTo(centerX - 60, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 60, centerY);
+            ctx.lineTo(centerX - 20, centerY - 40);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 60, centerY);
+            ctx.lineTo(centerX - 20, centerY + 40);
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 72px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('SWIPE DELETE', centerX, centerY + 400);
+
+            return canvas;
+        }
+
+        // Generate favicon.png
+        function generateFavicon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const size = 512;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 40;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(centerX + 100, centerY);
+            ctx.lineTo(centerX - 100, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 100, centerY);
+            ctx.lineTo(centerX - 30, centerY - 70);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - 100, centerY);
+            ctx.lineTo(centerX - 30, centerY + 70);
+            ctx.stroke();
+
+            return canvas;
+        }
+
+        // Download helper
+        function download(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Generate all
+        async function generateAll() {
+            const btn = document.getElementById('generateBtn');
+            const status = document.getElementById('status');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Generiere Assets...';
+            status.style.display = 'block';
+
+            // Small delays for smooth UX
+            await new Promise(r => setTimeout(r, 300));
+
+            status.textContent = 'Generiere icon.png...';
+            download(generateIcon(), 'icon.png');
+            document.getElementById('check-icon').classList.add('done');
+            document.getElementById('check-icon').querySelector('.check').textContent = '✓';
+            await new Promise(r => setTimeout(r, 400));
+
+            status.textContent = 'Generiere adaptive-icon.png...';
+            download(generateAdaptive(), 'adaptive-icon.png');
+            document.getElementById('check-adaptive').classList.add('done');
+            document.getElementById('check-adaptive').querySelector('.check').textContent = '✓';
+            await new Promise(r => setTimeout(r, 400));
+
+            status.textContent = 'Generiere splash.png...';
+            download(generateSplash(), 'splash.png');
+            document.getElementById('check-splash').classList.add('done');
+            document.getElementById('check-splash').querySelector('.check').textContent = '✓';
+            await new Promise(r => setTimeout(r, 400));
+
+            status.textContent = 'Generiere favicon.png...';
+            download(generateFavicon(), 'favicon.png');
+            document.getElementById('check-favicon').classList.add('done');
+            document.getElementById('check-favicon').querySelector('.check').textContent = '✓';
+            await new Promise(r => setTimeout(r, 400));
+
+            status.textContent = '✅ Fertig! Verschiebe alle 4 Dateien nach assets/';
+            btn.textContent = '✨ Nochmal Generieren';
+            btn.disabled = false;
+        }
+
+        // Init
+        window.onload = drawPreview;
+    </script>
+</body>
+</html>
